@@ -1,0 +1,82 @@
+.select {
+    position: relative;
+}
+
+.value {
+    background-color: #fff;
+    padding: 0.25rem 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-radius: 0.5rem;
+    border: 0.05rem solid #777;
+    cursor: pointer;
+}
+
+.options {
+    background-color: #fff;
+    padding: 0;
+    margin-top: 0.25rem;
+    overflow-y: auto;
+    position: absolute;
+    width: 100%;
+    z-index: 1;
+}
+
+.options.open {
+    max-height: 15rem;
+    border: 0.05rem solid #777;
+}
+
+.search {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.25rem 0.5rem;
+    background-color: #fff;
+    position: sticky;
+    top: 0;
+}
+
+.input {
+    margin-left: 0.25rem;
+    outline: none;
+    border: none;
+    width: 100%;
+    flex-grow: 1;
+}
+
+.options li {
+    list-style: none;
+    cursor: pointer;
+}
+
+.option {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.25rem 0.5rem;
+}
+
+.option.selected {
+    background-color: rgb(240, 240, 240);
+    font-weight: 700;
+}
+
+.option span {
+    flex-grow: 1;
+}
+
+.option:hover,
+.option.highlighted {
+    background-color: rgb(210, 210, 210);
+}
+
+.shorten {
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    word-break: break-word;
+}
