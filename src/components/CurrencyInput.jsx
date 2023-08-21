@@ -19,7 +19,9 @@ function CurrencyInput({ symbols, setAmount, currency, setCurrency }) {
   useEffect(
     function () {
       if (isNumeric(value.replaceAll(",", ""))) {
-        setAmount(value.replaceAll(",", ""));
+        setAmount(Number(value.replaceAll(",", "")));
+      } else {
+        setAmount(null);
       }
     },
     [value]
