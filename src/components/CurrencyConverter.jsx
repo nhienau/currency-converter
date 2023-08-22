@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import styles from "./CurrencyConverter.module.css";
 import CurrencyInput from "./CurrencyInput";
 import SwapHorizIcon from "@mui/icons-material/SwapHoriz";
+import Loader from "./Loader";
 
 function isNumeric(str) {
   if (typeof str != "string") return false; // we only process strings!
@@ -33,6 +34,7 @@ function CurrencyConverter({ symbols }) {
   const [fromCurrency, setFromCurrency] = useState(null);
   const [toCurrency, setToCurrency] = useState(null);
   const [exchangeRate, setExchangeRate] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
   const [input, setInput] = useState({
     fromAmount: "",
     toAmount: "",
@@ -40,7 +42,11 @@ function CurrencyConverter({ symbols }) {
 
   function handleAmountChange(e) {
     const inputValue = e.target.value;
-    if (exchangeRate && isNumeric(inputValue.replaceAll(",", ""))) {
+    if (
+      !isLoading &&
+      exchangeRate &&
+      isNumeric(inputValue.replaceAll(",", ""))
+    ) {
       const value = Number(inputValue.replaceAll(",", ""));
       const result =
         e.target.name === "fromAmount"
@@ -75,8 +81,8 @@ function CurrencyConverter({ symbols }) {
 
       async function fetchExchangeRate() {
         try {
+          setIsLoading(true);
           setExchangeRate(null);
-          // TODO: Add loading state (loading spinner)
 
           const myHeaders = new Headers();
           myHeaders.append("apikey", import.meta.env.VITE_API_KEY);
@@ -106,6 +112,8 @@ function CurrencyConverter({ symbols }) {
         } catch (err) {
           console.error(err);
           // TODO: Handle error
+        } finally {
+          setIsLoading(false);
         }
       }
 
@@ -156,7 +164,6 @@ function CurrencyConverter({ symbols }) {
             )
           : "",
       }));
-      // FIXME: NaN (check lai)
     },
     [exchangeRate]
   );
@@ -189,6 +196,12 @@ function CurrencyConverter({ symbols }) {
           1 {fromCurrency.value} &asymp; {getOutputString(exchangeRate.rate)}{" "}
           {toCurrency.value} &bull; {toDateString(exchangeRate.timestamp)}
         </summary>
+      )}
+      {isLoading && (
+        <div className={styles["loader-container"]}>
+          <Loader size={"small"} />
+          <span>Loading exchange rate, please wait...</span>
+        </div>
       )}
     </section>
   );
