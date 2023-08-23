@@ -52,7 +52,7 @@ function CurrencyConverter({ symbols }) {
       const result =
         e.target.name === "fromAmount"
           ? value * exchangeRate.rate
-          : value / exchangeRate;
+          : value / exchangeRate.rate;
       const output = getOutputString(result);
       const otherInput =
         e.target.name === "fromAmount" ? "toAmount" : "fromAmount";
