@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import styles from "./CurrencyConverter.module.css";
 import CurrencyInput from "./CurrencyInput";
 import SwapHorizIcon from "@mui/icons-material/SwapHoriz";
+import Loader from "./Loader";
 
 function isNumeric(str) {
   if (typeof str != "string") return false; // we only process strings!
@@ -33,14 +34,20 @@ function CurrencyConverter({ symbols }) {
   const [fromCurrency, setFromCurrency] = useState(null);
   const [toCurrency, setToCurrency] = useState(null);
   const [exchangeRate, setExchangeRate] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
   const [input, setInput] = useState({
     fromAmount: "",
     toAmount: "",
   });
+  const [error, setError] = useState(false);
 
   function handleAmountChange(e) {
     const inputValue = e.target.value;
-    if (exchangeRate && isNumeric(inputValue.replaceAll(",", ""))) {
+    if (
+      !isLoading &&
+      exchangeRate &&
+      isNumeric(inputValue.replaceAll(",", ""))
+    ) {
       const value = Number(inputValue.replaceAll(",", ""));
       const result =
         e.target.name === "fromAmount"
@@ -75,8 +82,9 @@ function CurrencyConverter({ symbols }) {
 
       async function fetchExchangeRate() {
         try {
+          setError(false);
+          setIsLoading(true);
           setExchangeRate(null);
-          // TODO: Add loading state (loading spinner)
 
           const myHeaders = new Headers();
           myHeaders.append("apikey", import.meta.env.VITE_API_KEY);
@@ -96,6 +104,14 @@ function CurrencyConverter({ symbols }) {
             requestOptions
           );
           const data = await response.json();
+          if (!response.ok) {
+            throw new Error(
+              `${data.message} (${response.status} ${response.statusText})`
+            );
+          }
+          if (!data.success) {
+            throw new Error(`${data.error.code} ${data.error.type}`);
+          }
           const result = {
             fromCur: data.base,
             toCur: Object.keys(data.rates)[0],
@@ -104,8 +120,12 @@ function CurrencyConverter({ symbols }) {
           };
           setExchangeRate(result);
         } catch (err) {
-          console.error(err);
-          // TODO: Handle error
+          if (err.name !== "AbortError") {
+            setError(true);
+            console.error(err.message);
+          }
+        } finally {
+          setIsLoading(false);
         }
       }
 
@@ -156,7 +176,6 @@ function CurrencyConverter({ symbols }) {
             )
           : "",
       }));
-      // FIXME: NaN (check lai)
     },
     [exchangeRate]
   );
@@ -188,6 +207,19 @@ function CurrencyConverter({ symbols }) {
         <summary className={styles["rate-summary"]}>
           1 {fromCurrency.value} &asymp; {getOutputString(exchangeRate.rate)}{" "}
           {toCurrency.value} &bull; {toDateString(exchangeRate.timestamp)}
+        </summary>
+      )}
+      {isLoading && (
+        <div className={styles["loader-container"]}>
+          <Loader size={"small"} />
+          <span>Loading exchange rate, please wait...</span>
+        </div>
+      )}
+
+      {error && (
+        <summary className={styles["error-message"]}>
+          <span>❌</span> Something went wrong with fetching data. Please try
+          again.
         </summary>
       )}
     </section>

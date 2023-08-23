@@ -4,13 +4,7 @@
     border-radius: 1rem;
     width: 100%;
     max-width: 45rem;
-    /* margin: 0 auto; */
 }
-
-/* .converter>* {
-    width: 100%;
-    margin: 0 auto;
-} */
 
 .input-box {
     display: flex;
@@ -31,14 +25,21 @@
     cursor: pointer;
 }
 
-.rate-summary {
+.rate-summary,
+.loader-container,
+.error-message {
     padding-top: 1rem;
+}
+
+.loader-container {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
 }
 
 @media (min-width: calc(40em + 1px)) {
     .input-box {
         flex-direction: row;
-        /* min-width: 40rem; */
     }
 
     .btn-swap {
