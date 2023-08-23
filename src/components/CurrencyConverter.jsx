@@ -39,6 +39,7 @@ function CurrencyConverter({ symbols }) {
     fromAmount: "",
     toAmount: "",
   });
+  const [error, setError] = useState(false);
 
   function handleAmountChange(e) {
     const inputValue = e.target.value;
@@ -81,6 +82,7 @@ function CurrencyConverter({ symbols }) {
 
       async function fetchExchangeRate() {
         try {
+          setError(false);
           setIsLoading(true);
           setExchangeRate(null);
 
@@ -102,6 +104,14 @@ function CurrencyConverter({ symbols }) {
             requestOptions
           );
           const data = await response.json();
+          if (!response.ok) {
+            throw new Error(
+              `${data.message} (${response.status} ${response.statusText})`
+            );
+          }
+          if (!data.success) {
+            throw new Error(`${data.error.code} ${data.error.type}`);
+          }
           const result = {
             fromCur: data.base,
             toCur: Object.keys(data.rates)[0],
@@ -110,8 +120,10 @@ function CurrencyConverter({ symbols }) {
           };
           setExchangeRate(result);
         } catch (err) {
-          console.error(err);
-          // TODO: Handle error
+          if (err.name !== "AbortError") {
+            setError(true);
+            console.error(err.message);
+          }
         } finally {
           setIsLoading(false);
         }
@@ -202,6 +214,13 @@ function CurrencyConverter({ symbols }) {
           <Loader size={"small"} />
           <span>Loading exchange rate, please wait...</span>
         </div>
+      )}
+
+      {error && (
+        <summary className={styles["error-message"]}>
+          <span>❌</span> Something went wrong with fetching data. Please try
+          again.
+        </summary>
       )}
     </section>
   );

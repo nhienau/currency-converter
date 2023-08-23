@@ -25,12 +25,13 @@
     cursor: pointer;
 }
 
-.rate-summary {
+.rate-summary,
+.loader-container,
+.error-message {
     padding-top: 1rem;
 }
 
 .loader-container {
-    padding-top: 1rem;
     display: flex;
     align-items: center;
     gap: 0.5rem;
