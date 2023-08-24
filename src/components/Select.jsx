@@ -53,6 +53,7 @@ function Select({ options, value = null, onChange }) {
       case "Enter":
         if (
           filterOptions.length !== 0 &&
+          highlightedIndex >= 0 &&
           highlightedIndex < filterOptions.length
         ) {
           handleSelectOption(filterOptions[highlightedIndex]);
