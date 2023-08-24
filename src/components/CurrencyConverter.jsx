@@ -30,7 +30,7 @@ function getOutputString(value) {
   return commafy(value.toFixed(value < 1 ? 6 : 2));
 }
 
-function CurrencyConverter({ symbols }) {
+function CurrencyConverter({ symbols, fetchedRates, setFetchedRates }) {
   const [fromCurrency, setFromCurrency] = useState(null);
   const [toCurrency, setToCurrency] = useState(null);
   const [exchangeRate, setExchangeRate] = useState(null);
@@ -112,13 +112,16 @@ function CurrencyConverter({ symbols }) {
           if (!data.success) {
             throw new Error(`${data.error.code} ${data.error.type}`);
           }
+          const timestampExpired = new Date(data.date).setUTCHours(23, 59, 59);
           const result = {
             fromCur: data.base,
             toCur: Object.keys(data.rates)[0],
             rate: Object.values(data.rates)[0],
             timestamp: data.timestamp * 1000,
+            timeExpired: new Date(timestampExpired).toISOString(),
           };
           setExchangeRate(result);
+          setFetchedRates([...fetchedRates, result]);
         } catch (err) {
           if (err.name !== "AbortError") {
             setError(true);
@@ -142,6 +145,7 @@ function CurrencyConverter({ symbols }) {
           toCur: toCurrency.value,
           rate: 1,
           timestamp: new Date().getTime(),
+          timeExpired: null,
         });
       } else if (
         exchangeRate?.fromCur === toCurrency.value &&
@@ -154,6 +158,29 @@ function CurrencyConverter({ symbols }) {
           rate: 1 / exchangeRate.rate,
         });
       } else {
+        const storedRate = fetchedRates.filter(
+          r =>
+            (r.fromCur === fromCurrency.value &&
+              r.toCur === toCurrency.value) ||
+            (r.fromCur === toCurrency.value && r.toCur === fromCurrency.value)
+        );
+        if (storedRate.length > 0) {
+          const [exchangeRate] = storedRate;
+          if (Date.now() < new Date(exchangeRate.timeExpired).getTime()) {
+            setExchangeRate(
+              exchangeRate.fromCur === fromCurrency.value &&
+                exchangeRate.toCur === toCurrency.value
+                ? exchangeRate
+                : {
+                    ...exchangeRate,
+                    fromCur: exchangeRate.toCur,
+                    toCur: exchangeRate.fromCur,
+                    rate: 1 / exchangeRate.rate,
+                  }
+            );
+            return;
+          }
+        }
         fetchExchangeRate();
       }
 
@@ -167,6 +194,9 @@ function CurrencyConverter({ symbols }) {
   useEffect(
     function () {
       if (!exchangeRate) return;
+      setFetchedRates(rates =>
+        rates.filter(rate => Date.now() < new Date(rate.timeExpired).getTime())
+      );
       setInput(prevInput => ({
         ...prevInput,
         toAmount: isNumeric(prevInput.fromAmount.replaceAll(",", ""))

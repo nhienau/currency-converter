@@ -1,9 +1,14 @@
 import { useState, useEffect } from "react";
 import CurrencyConverter from "./components/CurrencyConverter";
 import "./index.css";
+import { useSessionStorageState } from "./hooks/useSessionStorageState";
 
 function App() {
   const [symbols, setSymbols] = useState({});
+  const [fetchedRates, setFetchedRates] = useSessionStorageState(
+    "exchangeRate",
+    []
+  );
 
   useEffect(function () {
     async function fetchSymbols() {
@@ -16,8 +21,16 @@ function App() {
 
   return (
     <div className="app">
-      <CurrencyConverter symbols={symbols} />
-      <CurrencyConverter symbols={symbols} />
+      <CurrencyConverter
+        symbols={symbols}
+        fetchedRates={fetchedRates}
+        setFetchedRates={setFetchedRates}
+      />
+      <CurrencyConverter
+        symbols={symbols}
+        fetchedRates={fetchedRates}
+        setFetchedRates={setFetchedRates}
+      />
     </div>
   );
 }
