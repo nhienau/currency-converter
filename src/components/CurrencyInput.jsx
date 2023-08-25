@@ -9,9 +9,11 @@ function CurrencyInput({
   setCurrency,
   name,
 }) {
-  const options = Object.entries(symbols).map(symbol => {
-    return { label: `${symbol[0]} — ${symbol[1]}`, value: symbol[0] };
-  });
+  const options = symbols
+    ? Object.entries(symbols).map(symbol => {
+        return { label: `${symbol[0]} — ${symbol[1]}`, value: symbol[0] };
+      })
+    : {};
 
   return (
     <div className={styles["input-container"]}>

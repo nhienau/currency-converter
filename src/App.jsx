@@ -1,23 +1,32 @@
-import { useState, useEffect } from "react";
 import CurrencyConverter from "./components/CurrencyConverter";
+import Loader from "./components/Loader";
 import "./index.css";
 import { useSessionStorageState } from "./hooks/useSessionStorageState";
+import LoadingStatus from "./components/LoadingStatus";
+import { useCurrenciesFetcher } from "./hooks/useCurrenciesFetcher";
 
 function App() {
-  const [symbols, setSymbols] = useState({});
+  const { symbols, isLoading, error } = useCurrenciesFetcher();
   const [fetchedRates, setFetchedRates] = useSessionStorageState(
     "exchangeRate",
     []
   );
 
-  useEffect(function () {
-    async function fetchSymbols() {
-      const res = await fetch("http://localhost:9000/symbols");
-      const data = await res.json();
-      setSymbols(data);
-    }
-    fetchSymbols();
-  }, []);
+  if (isLoading)
+    return (
+      <LoadingStatus>
+        <Loader size={"large"} />
+        <span>Loading currencies...</span>
+      </LoadingStatus>
+    );
+
+  if (error)
+    return (
+      <LoadingStatus>
+        <span role="img">❌</span>
+        <span>There was an error fetching currencies, please try again.</span>
+      </LoadingStatus>
+    );
 
   return (
     <div className="app">
