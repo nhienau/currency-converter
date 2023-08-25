@@ -3,25 +3,23 @@
     display: inline-block;
     border-radius: 50%;
     animation: loader 1s ease infinite;
+    aspect-ratio: 1;
 }
 
 .loader.small {
     width: 1rem;
-    height: 1rem;
     border: 0.1875rem solid transparent;
     border-top-color: #666;
 }
 
 .loader.medium {
     width: 2rem;
-    height: 2rem;
     border: 0.2rem solid transparent;
     border-top-color: #666;
 }
 
 .loader.large {
     width: 5rem;
-    height: 5rem;
     border: 0.5rem solid transparent;
     border-top-color: #666;
 }
