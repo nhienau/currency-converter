@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 
-const URL = "http://localhost:9000/symbols";
+const URL = "/.netlify/functions/symbols";
 
 export function useCurrenciesFetcher() {
   const [symbols, setSymbols] = useState({});
