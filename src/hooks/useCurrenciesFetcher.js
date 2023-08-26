@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 
-const URL = "./data/symbols.json";
+const URL = "http://localhost:9000/symbols";
 
 export function useCurrenciesFetcher() {
   const [symbols, setSymbols] = useState({});

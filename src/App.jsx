@@ -54,7 +54,7 @@ function App() {
       />
       {listConverter.map(converter => (
         <CurrencyConverter
-          symbols={symbols.symbols}
+          symbols={symbols}
           fetchedRates={fetchedRates}
           setFetchedRates={setFetchedRates}
           key={converter.id}
