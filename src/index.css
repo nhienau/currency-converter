@@ -13,3 +13,23 @@
     margin: 0 auto;
     padding: 1.25rem;
 }
+
+.btn-round {
+    width: 2rem;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    border: none;
+    background-color: rgb(242, 242, 242);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-round:hover {
+    background-color: rgb(229, 229, 229);
+}
+
+.btn-round:disabled {
+    background-color: rgb(242, 242, 242);
+    color: lightgray;
+    cursor: default;
+}
