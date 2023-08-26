@@ -1,36 +1,68 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import CurrencyConverter from "./components/CurrencyConverter";
+import Loader from "./components/Loader";
 import "./index.css";
 import { useSessionStorageState } from "./hooks/useSessionStorageState";
+import LoadingStatus from "./components/LoadingStatus";
+import { useCurrenciesFetcher } from "./hooks/useCurrenciesFetcher";
+import NumConverter from "./components/NumConverter";
 
 function App() {
-  const [symbols, setSymbols] = useState({});
+  const { symbols, isLoading, error } = useCurrenciesFetcher();
   const [fetchedRates, setFetchedRates] = useSessionStorageState(
     "exchangeRate",
     []
   );
+  const [listConverter, setListConverter] = useState([
+    { id: crypto.randomUUID() },
+  ]);
+  const numConverter = listConverter.length;
+  const maxConverter = 5;
 
-  useEffect(function () {
-    async function fetchSymbols() {
-      const res = await fetch("http://localhost:9000/symbols");
-      const data = await res.json();
-      setSymbols(data);
-    }
-    fetchSymbols();
-  }, []);
+  function handleAddConverter() {
+    if (numConverter === maxConverter) return;
+    const newConverter = { id: crypto.randomUUID() };
+    setListConverter(listConverter => [...listConverter, newConverter]);
+  }
+
+  function handleDeleteConverter(id) {
+    setListConverter(listConverter => listConverter.filter(c => c.id !== id));
+  }
+
+  if (isLoading)
+    return (
+      <LoadingStatus>
+        <Loader size={"large"} />
+        <span>Loading currencies...</span>
+      </LoadingStatus>
+    );
+
+  if (error)
+    return (
+      <LoadingStatus>
+        <span role="img">❌</span>
+        <span>There was an error fetching currencies, please try again.</span>
+      </LoadingStatus>
+    );
 
   return (
     <div className="app">
-      <CurrencyConverter
-        symbols={symbols}
-        fetchedRates={fetchedRates}
-        setFetchedRates={setFetchedRates}
+      <NumConverter
+        numConverter={numConverter}
+        maxConverter={maxConverter}
+        onAddConverter={handleAddConverter}
       />
-      <CurrencyConverter
-        symbols={symbols}
-        fetchedRates={fetchedRates}
-        setFetchedRates={setFetchedRates}
-      />
+      {listConverter.map(converter => (
+        <CurrencyConverter
+          symbols={symbols}
+          fetchedRates={fetchedRates}
+          setFetchedRates={setFetchedRates}
+          key={converter.id}
+          id={converter.id}
+          onDeleteConverter={handleDeleteConverter}
+          disabled={numConverter === 1}
+        />
+      ))}
     </div>
   );
 }

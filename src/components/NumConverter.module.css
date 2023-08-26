@@ -1,0 +1,20 @@
+.num-converter {
+    width: 100%;
+    max-width: 45rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.num-converter span {
+    font-size: 2rem;
+    font-weight: bold;
+}
+
+.btn-add {
+    width: 2.5rem;
+}
+
+.btn-add svg {
+    font-size: 2rem;
+}

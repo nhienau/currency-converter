@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import styles from "./CurrencyConverter.module.css";
 import CurrencyInput from "./CurrencyInput";
 import SwapHorizIcon from "@mui/icons-material/SwapHoriz";
+import CloseIcon from "@mui/icons-material/Close";
 import Loader from "./Loader";
 
 function isNumeric(str) {
@@ -30,7 +31,14 @@ function getOutputString(value) {
   return commafy(value.toFixed(value < 1 ? 6 : 2));
 }
 
-function CurrencyConverter({ symbols, fetchedRates, setFetchedRates }) {
+function CurrencyConverter({
+  symbols,
+  fetchedRates,
+  setFetchedRates,
+  onDeleteConverter,
+  id,
+  disabled = true,
+}) {
   const [fromCurrency, setFromCurrency] = useState(null);
   const [toCurrency, setToCurrency] = useState(null);
   const [exchangeRate, setExchangeRate] = useState(null);
@@ -212,6 +220,14 @@ function CurrencyConverter({ symbols, fetchedRates, setFetchedRates }) {
 
   return (
     <section className={styles.converter}>
+      <button
+        className={`${styles["btn-close"]} btn-round`}
+        onClick={() => onDeleteConverter(id)}
+        disabled={disabled}
+        tabIndex={0}
+      >
+        <CloseIcon />
+      </button>
       <div className={styles["input-box"]}>
         <CurrencyInput
           symbols={symbols}

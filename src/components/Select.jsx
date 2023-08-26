@@ -13,6 +13,7 @@ function Select({ options, value = null, onChange }) {
   const [highlightedIndex, setHighlightedIndex] = useState(0);
   const containerRef = useRef(null);
   const searchRef = useRef(null);
+  const listRef = useRef(null);
 
   function handleSelectOption(option) {
     setSelected(option);
@@ -21,13 +22,18 @@ function Select({ options, value = null, onChange }) {
   }
 
   function handleBlurList(e) {
-    if (!e.relatedTarget) {
-      setIsOpen(false);
+    switch (e.relatedTarget) {
+      case containerRef.current:
+      case listRef.current:
+      case searchRef.current:
+        break;
+      default:
+        setIsOpen(false);
     }
   }
 
   function handleBlurDropdown(e) {
-    if (e.relatedTarget?.nodeName === "INPUT") {
+    if (e.relatedTarget && e.relatedTarget === searchRef.current) {
       e.relatedTarget.click();
     } else {
       setIsOpen(false);
@@ -50,6 +56,7 @@ function Select({ options, value = null, onChange }) {
       case "Escape":
         setIsOpen(false);
         break;
+      case "NumpadEnter":
       case "Enter":
         if (
           filterOptions.length !== 0 &&
@@ -94,7 +101,7 @@ function Select({ options, value = null, onChange }) {
     const handler = function (e) {
       if (
         document.activeElement === containerRef.current &&
-        e.code === "Enter"
+        (e.code === "Enter" || e.code === "NumpadEnter")
       ) {
         setIsOpen(prev => !prev);
         return;
@@ -127,42 +134,12 @@ function Select({ options, value = null, onChange }) {
         <span className={styles.shorten}>{selected ? selected.label : ""}</span>
         {isOpen ? <ExpandLessIcon /> : <ExpandMoreIcon />}
       </div>
-      {/* <ul
-        className={`${styles.options} ${isOpen ? styles.open : ""}`}
-        onBlur={handleBlurList}
-        tabIndex={-1}
-      >
-        <div className={`${styles.search}`}>
-          <SearchIcon />
-          <input
-            type="text"
-            className={styles.input}
-            placeholder="Search"
-            ref={searchRef}
-            value={query}
-            onChange={e => setQuery(e.target.value)}
-            disabled={!isOpen}
-            onKeyDown={handleKeyDown}
-          />
-        </div>
-        {filterOptions.map((option, index) => (
-          <li
-            key={option.value}
-            className={`${styles.option} ${
-              selected?.value === option.value ? styles.selected : ""
-            } ${index === highlightedIndex ? styles.highlighted : ""} `}
-            onClick={() => handleSelectOption(option)}
-          >
-            <span className={styles.shorten}>{option.label}</span>
-            {selected?.value === option.value && <CheckIcon />}
-          </li>
-        ))}
-      </ul> */}
       {isOpen && (
         <ul
           className={`${styles.options} ${isOpen ? styles.open : ""}`}
           onBlur={handleBlurList}
           tabIndex={-1}
+          ref={listRef}
         >
           <div className={`${styles.search}`}>
             <SearchIcon />
