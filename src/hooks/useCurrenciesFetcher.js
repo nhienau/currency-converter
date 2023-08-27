@@ -14,7 +14,7 @@ export function useCurrenciesFetcher() {
         setIsLoading(true);
         const res = await fetch(URL);
         const data = await res.json();
-        setSymbols(data);
+        setSymbols(data.symbols || data);
       } catch (err) {
         console.error(err.message);
         setError(true);
