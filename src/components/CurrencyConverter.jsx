@@ -94,13 +94,13 @@ function CurrencyConverter({
           setIsLoading(true);
           setExchangeRate(null);
 
-          const myHeaders = new Headers();
-          myHeaders.append("apikey", import.meta.env.VITE_API_KEY);
+          const headers = new Headers();
+          headers.append("apikey", import.meta.env.VITE_API_KEY);
 
           const requestOptions = {
             method: "GET",
             redirect: "follow",
-            headers: myHeaders,
+            headers,
             withCredentials: true,
             signal: controller.signal,
           };
