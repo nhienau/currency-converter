@@ -8,8 +8,6 @@ export function useCurrenciesFetcher() {
   const [error, setError] = useState(false);
 
   useEffect(function () {
-    const controller = new AbortController();
-
     async function fetchSymbols() {
       try {
         setError(false);
@@ -22,7 +20,7 @@ export function useCurrenciesFetcher() {
           redirect: "follow",
           headers,
           withCredentials: true,
-          signal: controller.signal,
+          credentials: "same-origin",
         };
 
         const response = await fetch(URL, requestOptions);
@@ -37,19 +35,13 @@ export function useCurrenciesFetcher() {
         }
         setSymbols(data.symbols);
       } catch (err) {
-        if (err.name !== "AbortError") {
-          setError(true);
-          console.error(err.message);
-        }
+        setError(true);
+        console.error(err.message);
       } finally {
         setIsLoading(false);
       }
     }
     fetchSymbols();
-
-    return function () {
-      controller.abort();
-    };
   }, []);
 
   return { symbols, isLoading, error };
