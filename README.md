@@ -43,8 +43,3 @@ You can get a free API key from [Fixer official website](https://fixer.io/) or t
 ```BASH
 npm run dev
 ```
-
-**Note**: For deployment, I use a Netlify function to get all available currencies to reduce unneccessary API requests. For local development instead, you can replace the fetch currencies URL (hooks/useCurrenciesFetcher.js, line 3) to:
-
-- /symbols endpoint on Fixer API. You will need to pass your API key to the API URL or to the headers;
-- or the URL come from json-server as a fake API which will get the symbols from data/symbols.json. You will need to run `npm run server` to start JSON server.
