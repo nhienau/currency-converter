@@ -94,13 +94,14 @@ function CurrencyConverter({
           setIsLoading(true);
           setExchangeRate(null);
 
-          const myHeaders = new Headers();
-          myHeaders.append("apikey", import.meta.env.VITE_API_KEY);
+          const headers = new Headers();
+          headers.append("apikey", import.meta.env.VITE_API_KEY);
 
           const requestOptions = {
             method: "GET",
             redirect: "follow",
-            headers: myHeaders,
+            headers,
+            credentials: "same-origin",
             withCredentials: true,
             signal: controller.signal,
           };
@@ -120,7 +121,16 @@ function CurrencyConverter({
           if (!data.success) {
             throw new Error(`${data.error.code} ${data.error.type}`);
           }
-          const timestampExpired = new Date(data.date).setUTCHours(23, 59, 59);
+
+          const timestampFetched = new Date(data.timestamp * 1000);
+
+          // Change time expired if you have higher API subscription
+          const timestampExpired = timestampFetched.setUTCHours(
+            timestampFetched.getUTCHours() + 1,
+            0,
+            0
+          );
+
           const result = {
             fromCur: data.base,
             toCur: Object.keys(data.rates)[0],
@@ -155,42 +165,33 @@ function CurrencyConverter({
           timestamp: new Date().getTime(),
           timeExpired: null,
         });
-      } else if (
-        exchangeRate?.fromCur === toCurrency.value &&
-        exchangeRate?.toCur === fromCurrency.value
-      ) {
-        setExchangeRate({
-          ...exchangeRate,
-          fromCur: exchangeRate.toCur,
-          toCur: exchangeRate.fromCur,
-          rate: 1 / exchangeRate.rate,
-        });
-      } else {
-        const storedRate = fetchedRates.filter(
-          r =>
-            (r.fromCur === fromCurrency.value &&
-              r.toCur === toCurrency.value) ||
-            (r.fromCur === toCurrency.value && r.toCur === fromCurrency.value)
-        );
-        if (storedRate.length > 0) {
-          const [exchangeRate] = storedRate;
-          if (Date.now() < new Date(exchangeRate.timeExpired).getTime()) {
-            setExchangeRate(
-              exchangeRate.fromCur === fromCurrency.value &&
-                exchangeRate.toCur === toCurrency.value
-                ? exchangeRate
-                : {
-                    ...exchangeRate,
-                    fromCur: exchangeRate.toCur,
-                    toCur: exchangeRate.fromCur,
-                    rate: 1 / exchangeRate.rate,
-                  }
-            );
-            return;
-          }
-        }
-        fetchExchangeRate();
+        return;
       }
+
+      const [storedRate] = fetchedRates.filter(
+        r =>
+          ((r.fromCur === fromCurrency.value && r.toCur === toCurrency.value) ||
+            (r.fromCur === toCurrency.value &&
+              r.toCur === fromCurrency.value)) &&
+          Date.now() < new Date(r.timeExpired).getTime()
+      );
+
+      if (!storedRate) {
+        fetchExchangeRate();
+        return;
+      }
+
+      setExchangeRate(
+        storedRate.fromCur === fromCurrency.value &&
+          storedRate.toCur === toCurrency.value
+          ? storedRate
+          : {
+              ...storedRate,
+              fromCur: storedRate.toCur,
+              toCur: storedRate.fromCur,
+              rate: 1 / storedRate.rate,
+            }
+      );
 
       return function () {
         controller.abort();

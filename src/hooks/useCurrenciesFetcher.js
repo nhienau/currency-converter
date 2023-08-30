@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 
-const URL = "/.netlify/functions/symbols";
+const URL = `${import.meta.env.VITE_API_URL}/symbols`;
 
 export function useCurrenciesFetcher() {
   const [symbols, setSymbols] = useState({});
@@ -12,12 +12,31 @@ export function useCurrenciesFetcher() {
       try {
         setError(false);
         setIsLoading(true);
-        const res = await fetch(URL);
-        const data = await res.json();
-        setSymbols(data.symbols || data);
+        const headers = new Headers();
+        headers.append("apikey", import.meta.env.VITE_API_KEY);
+
+        const requestOptions = {
+          method: "GET",
+          redirect: "follow",
+          headers,
+          withCredentials: true,
+          credentials: "same-origin",
+        };
+
+        const response = await fetch(URL, requestOptions);
+        const data = await response.json();
+        if (!response.ok) {
+          throw new Error(
+            `${data.message} (${response.status} ${response.statusText})`
+          );
+        }
+        if (!data.success) {
+          throw new Error(`${data.error.code} ${data.error.type}`);
+        }
+        setSymbols(data.symbols);
       } catch (err) {
-        console.error(err.message);
         setError(true);
+        console.error(err.message);
       } finally {
         setIsLoading(false);
       }
