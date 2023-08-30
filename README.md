@@ -18,7 +18,6 @@ This is a web application written in React allowing user to get exchange rates a
 - React, Vite
 - Exchange rate API: [Fixer](https://apilayer.com/marketplace/fixer-api)
 - Icons (svg): [Material Icons](https://mui.com/material-ui/material-icons/)
-- Deployment through [Netlify](https://www.netlify.com/)
 
 ## Installation
 
